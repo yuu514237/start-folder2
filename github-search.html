@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>GitHub検索</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>GitHub検索</h1>
+  <input type="text" id="username" placeholder="GitHubユーザー名を入力" />
+  <button id="searchBtn">検索</button>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('searchBtn').addEventListener('click', function() {
+      const username = document.getElementById('username').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (!username) {
+        resultDiv.innerHTML = '<p class="error">ユーザー名を入力してください。</p>';
+        return;
+      }
+
+      fetch(`https://api.github.com/users/${username}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('ユーザーが見つかりません。');
+          }
+          return response.json();
+        })
+        .then(data => {
+          resultDiv.innerHTML = `
+            <p><strong>ユーザー名:</strong> ${data.login}</p>
+            <p><strong>フォロワー数:</strong> ${data.followers}</p>
+            <p><strong>公開リポジトリ数:</strong> ${data.public_repos}</p>
+            <p><a href="${data.html_url}" target="_blank">GitHubプロフィールを見る</a></p>
+          `;
+        })
+        .catch(error => {
+          resultDiv.innerHTML = `<p class="error">${error.message}</p>`;
+        });
+    });
+  </script>
+</body>
+</html>
